@@ -1,0 +1,7 @@
+# Ignore heavy model weights
+*.pt
+*.npz
+
+# Ignore raw data files and datasets
+*.csv
+*_dataset/
