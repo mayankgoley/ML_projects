@@ -1,3 +1,42 @@
+# Car Lane Detection
+
+Detecting lane lines on road images using classical computer vision. No deep learning, just OpenCV.
+
+## What I did
+
+Used the CARLA simulator dataset which has dashcam images and lane masks. Built the standard classical CV pipeline: grayscale, gaussian blur, white brightness mask (the lane markings are faint in this dataset), Canny edges, region of interest mask, then Hough lines to detect line segments. Split the segments by slope into left and right lanes, averaged each side, and extrapolated to a single line per side.
+
+Pipeline steps:
+- Grayscale and blur
+- White brightness mask to handle faint markings
+- Canny edge detection
+- Trapezoidal region of interest
+- Hough line transform
+- Left/right slope split, averaging, extrapolation
+
+Metrics: detection rate (a line found on both sides) and mean IoU against the dilated ground truth lane masks.
+
+## Results
+
+| Metric | Value |
+|---|---|
+| Detection rate | 14.0% |
+| Mean IoU | 0.298 |
+
+These numbers look low at first but they are honest. One of the ego lane boundaries in this dataset is on unpainted asphalt with no visible edges, so a classical pipeline cannot recover it. The pipeline catches the painted dashed centerline and road edges well, but it cannot detect a lane line that has nothing to detect. A learned segmentation model would solve this.
+
+## Files
+
+- `lane_detection.ipynb` - the whole project
+
+## Dataset
+
+Lane Detection for Carla Driving Simulator from Kaggle: https://www.kaggle.com/datasets/thomasfermi/lane-detection-for-carla-driving-simulator
+
+Not pushed to the repo. Download it from the link and drop it in the same folder before running the notebook.
+
+---
+
 # House Price Prediction
 
 Predicting house prices from a tabular dataset. Just a small ML project I built to practice the basics of regression.
