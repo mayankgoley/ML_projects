@@ -4,10 +4,48 @@ A bunch of ML and deep learning projects I built while studying and applying for
 
 ## Projects in this repo
 
-1. [Traffic Sign Classification](#traffic-sign-classification)
-2. [Car Lane Detection](#car-lane-detection)
-3. [House Price Prediction](#house-price-prediction)
-4. [IMDB Sentiment Analysis](#imdb-sentiment-analysis)
+1. [Face Mask Detection](#face-mask-detection)
+2. [Traffic Sign Classification](#traffic-sign-classification)
+3. [Car Lane Detection](#car-lane-detection)
+4. [House Price Prediction](#house-price-prediction)
+5. [IMDB Sentiment Analysis](#imdb-sentiment-analysis)
+
+---
+
+# Face Mask Detection
+
+Classifying face images as with mask or without mask. Two models compared: a small CNN trained from scratch and a frozen MobileNetV2 with a new head.
+
+## What I did
+
+Used a Kaggle face mask dataset with about 7500 face crops split across two folders (with_mask and without_mask). The classes were essentially balanced so no class weights needed. Did a stratified 70/15/15 split for train, val, and test. Resized to 128x128 for the scratch CNN and 224x224 for MobileNetV2 (since it is pretrained on ImageNet at that resolution). Added augmentation on the train set (flip, rotation, color jitter, random resized crop).
+
+Models:
+- CNN from scratch (4 conv blocks then an FC head)
+- MobileNetV2 with the backbone frozen, new 2 way head trained
+
+Metrics: test accuracy, classification report, confusion matrix.
+
+## Results
+
+| Model | Test Accuracy |
+|---|---|
+| CNN from scratch | 0.957 |
+| MobileNetV2 (transfer) | 0.982 |
+
+MobileNetV2 transfer learning won, 0.982 vs 0.957. Unlike the traffic sign case, transfer learning helps here: the inputs are 224x224 face crops that look like the natural photos ImageNet was trained on, so the frozen backbone features transfer well. The from-scratch CNN is still strong on its own — this is an easy, balanced binary task — but the pretrained features give MobileNetV2 the edge.
+
+Since the images are already tight face crops, the demo cell just classifies the whole image and draws a colored label (green for with_mask, red for without_mask). No separate face detection step needed.
+
+## Files
+
+- `face_mask_detection.ipynb` - the whole project
+
+## Dataset
+
+Face Mask Dataset from Kaggle: https://www.kaggle.com/datasets/omkargurav/face-mask-dataset
+
+Not pushed to the repo. Download it from the link and drop it in the same folder before running the notebook.
 
 ---
 
