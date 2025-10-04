@@ -1,3 +1,53 @@
+# ML Projects
+
+A bunch of ML and deep learning projects I built while studying and applying for jobs. Each one is a single Jupyter notebook that I tried to keep readable and honest about what worked and what did not.
+
+## Projects in this repo
+
+1. [Traffic Sign Classification](#traffic-sign-classification)
+2. [Car Lane Detection](#car-lane-detection)
+3. [House Price Prediction](#house-price-prediction)
+4. [IMDB Sentiment Analysis](#imdb-sentiment-analysis)
+
+---
+
+# Traffic Sign Classification
+
+Classifying German traffic signs into 43 categories. Two models compared: a small CNN trained from scratch and a frozen ResNet18 with a new head.
+
+## What I did
+
+Used the GTSRB dataset, loaded train and test from the CSVs (since the test folder is flat and the labels live in Test.csv), built an 80/20 train/val split. Resized images to 64x64, normalized, and added augmentation on the train set (rotation, color jitter, perspective). Used inverse frequency class weights in the loss because GTSRB is moderately imbalanced (about a 10x spread between smallest and largest class).
+
+Models:
+- CNN from scratch (4 conv blocks then a small FC head)
+- ResNet18 with the backbone frozen, new 43 way head trained
+
+Metrics: test accuracy and a classification report on the most confused classes.
+
+## Results
+
+| Model | Test Accuracy |
+|---|---|
+| CNN from scratch | 0.969 |
+| ResNet18 (transfer) | 0.667 |
+
+The from-scratch CNN won clearly, 0.969 vs 0.667. Freezing an ImageNet-pretrained ResNet18 backbone hurts here: traffic signs are small, low-detail images unlike the natural photos ResNet learned on, so the frozen features do not transfer well. A CNN learning features directly on GTSRB beats it easily. Unfreezing and fine tuning the backbone would be the fix.
+
+The weakest classes were the speed limit signs (20, 30, 50, 70, 80 km/h all look similar), which is the expected failure pattern.
+
+## Files
+
+- `traffic_sign_classification.ipynb` - the whole project
+
+## Dataset
+
+GTSRB German Traffic Sign Recognition Benchmark from Kaggle: https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign
+
+Not pushed to the repo. Download it from the link and drop it in the same folder before running the notebook.
+
+---
+
 # Car Lane Detection
 
 Detecting lane lines on road images using classical computer vision. No deep learning, just OpenCV.
@@ -27,7 +77,7 @@ These numbers look low at first but they are honest. One of the ego lane boundar
 
 ## Files
 
-- `lane_detection.ipynb` - the whole project
+- `car_lane_detection.ipynb` - the whole project
 
 ## Dataset
 
