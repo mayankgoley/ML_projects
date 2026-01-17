@@ -4,11 +4,53 @@ A bunch of ML and deep learning projects I built while studying and applying for
 
 ## Projects in this repo
 
-1. [Face Mask Detection](#face-mask-detection)
-2. [Traffic Sign Classification](#traffic-sign-classification)
-3. [Car Lane Detection](#car-lane-detection)
-4. [House Price Prediction](#house-price-prediction)
-5. [IMDB Sentiment Analysis](#imdb-sentiment-analysis)
+1. [Speech Emotion Recognition](#speech-emotion-recognition)
+2. [Face Mask Detection](#face-mask-detection)
+3. [Traffic Sign Classification](#traffic-sign-classification)
+4. [Car Lane Detection](#car-lane-detection)
+5. [House Price Prediction](#house-price-prediction)
+6. [IMDB Sentiment Analysis](#imdb-sentiment-analysis)
+
+---
+
+# Speech Emotion Recognition
+
+Classifying short speech clips into 8 emotions. Wanted to see how far a small CNN on spectrograms can get versus a classical baseline.
+
+## What I did
+
+Used the RAVDESS speech dataset (1440 clips, 24 actors, 8 emotions). Found a duplicate folder inside the dataset and ignored it. Trimmed leading and trailing silence with librosa, fixed every clip to 3 seconds, and split by actor (18 train, 3 val, 3 test) so the model could not just memorize voices. Stratified the actor split by gender so both are represented in each split.
+
+Models:
+- Random Forest on MFCC summary stats (mean and std across time) as a baseline
+- Small CNN on log mel spectrograms
+
+Used inverse frequency class weights in the CNN loss since the neutral class is half size (RAVDESS does not have a strong intensity variant for neutral).
+
+Metrics: test accuracy, classification report, confusion matrix.
+
+## Results
+
+| Model | Test Accuracy |
+|---|---|
+| Random Forest (MFCC stats) | 0.44 |
+| CNN (log mel spectrograms) | 0.46 |
+
+Both land around 45 percent for 8 classes (chance is 12.5 percent). Looks low at first glance but it is the honest number. With only 18 training actors and a speaker independent split, the model cannot lean on familiar voices, which is exactly the point of splitting that way.
+
+The most confused pairs from the CNN were happy predicted as angry (both high arousal), and calm and neutral predicted as sad (all three are low energy and flat in pitch). These are the standard confusion patterns in the speech emotion literature, even humans confuse these in unfamiliar languages.
+
+The CNN barely beat the Random Forest by 2 points which is itself an interesting finding. With small datasets like this one, classical features with good ML often nearly match deep learning.
+
+## Files
+
+- `speech_emotion_recognition.ipynb` - the whole project
+
+## Dataset
+
+RAVDESS Emotional Speech Audio from Kaggle: https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio
+
+Not pushed to the repo. Download it from the link and drop it in the same folder before running the notebook.
 
 ---
 
