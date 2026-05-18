@@ -4,12 +4,58 @@ A bunch of ML and deep learning projects I built while studying and applying for
 
 ## Projects in this repo
 
-1. [Speech Emotion Recognition](#speech-emotion-recognition)
-2. [Face Mask Detection](#face-mask-detection)
-3. [Traffic Sign Classification](#traffic-sign-classification)
-4. [Car Lane Detection](#car-lane-detection)
-5. [House Price Prediction](#house-price-prediction)
-6. [IMDB Sentiment Analysis](#imdb-sentiment-analysis)
+1. [Energy Forecasting](#energy-forecasting)
+2. [Speech Emotion Recognition](#speech-emotion-recognition)
+3. [Face Mask Detection](#face-mask-detection)
+4. [Traffic Sign Classification](#traffic-sign-classification)
+5. [Car Lane Detection](#car-lane-detection)
+6. [House Price Prediction](#house-price-prediction)
+7. [IMDB Sentiment Analysis](#imdb-sentiment-analysis)
+
+---
+
+# Energy Forecasting
+
+Hourly energy consumption forecasting on the PJME region of the PJM grid. Wanted to do a time series project properly, with chronological splits and a real naive baseline that the deep models actually have to beat.
+
+## What I did
+
+Used about 16 years of hourly PJME energy data (2002 to 2018, around 145k rows). Cleaned up the DST quirks with linear interpolation for the missing hours and averaged the duplicated hours. Did a chronological 80/10/10 split (no shuffling, this is the whole point with time series). Fit the scaler on the train portion only to avoid leaking future info into training.
+
+For features, added hour of day, day of week, month, is weekend, and cyclic sin/cos encodings of hour and day. Used 1 week of past hours (168) as input to predict the next 24 hours.
+
+Models:
+- Naive baseline (predict same 24 hours from one week ago)
+- LSTM with one or two layers and a linear head outputting 24 values
+- Transformer encoder with sinusoidal positional encoding, 2 to 3 encoder layers
+
+Metrics: MAE and RMSE on the inverse scaled values (so the numbers are in actual megawatts, not scaled units).
+
+## Results
+
+Test period: Dec 2016 to Aug 2018 (last 10% of the series).
+
+| Model | MAE (MW) | RMSE (MW) |
+|---|---|---|
+| Naive | 3519 | 4788 |
+| LSTM | 1503 | 2084 |
+| Transformer | 1466 | 2050 |
+
+The deep models cut MAE by about 58 percent over naive (3519 down to about 1480 MW). Against a mean load of around 32000 MW that is roughly 4.6 percent error for the deep models versus 11 percent for naive. The naive baseline cannot react to weather, and grid load is heavily weather driven, which is why the gap is this big.
+
+Transformer barely beat LSTM (37 MW MAE difference, about 2.5 percent) which is within run to run noise. Honest take: the extra training time for the Transformer did not buy much over the LSTM on this dataset.
+
+I verified all the time series rules before reporting numbers: chronological split with printed dates, scaler fit on train only, and an explicit look ahead sanity check that prints the actual timestamps of one X window and its corresponding y window with an assertion that y starts after X ends.
+
+## Files
+
+- `energy_forecasting.ipynb` - the whole project
+
+## Dataset
+
+Hourly Energy Consumption from Kaggle: https://www.kaggle.com/datasets/robikscube/hourly-energy-consumption
+
+Not pushed to the repo. Download it from the link and drop the PJME_hourly.csv in the same folder before running the notebook.
 
 ---
 
